@@ -4,13 +4,14 @@ from fastapi import FastAPI, HTTPException
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
-# Ensure the CSV file is stored in a persistent location
-df_path = "/data/retail_store_inventory.csv"  # Change from local path
+# Path to the CSV file in the root directory
+df_path = "retail_store_inventory.csv"  # Since it's in the root directory
 
-# Check if the file exists before loading
+# Check if the CSV file exists before loading
 if not os.path.exists(df_path):
     raise FileNotFoundError(f"Dataset not found at {df_path}")
 
+# Load CSV into DataFrame
 df = pd.read_csv(df_path)
 
 # Convert 'Date' column to datetime format if it exists
@@ -19,17 +20,10 @@ if 'Date' in df.columns:
 
 # Initialize FastAPI app
 app = FastAPI()
-PORT = int(os.getenv("PORT", 8000))  # Use 8000 if PORT is not set
-DATABASE_URL = os.getenv("DATABASE_URL", None)  # For future database integration
 
-# Load CSV file
-df_path = "/data/retail_store_inventory.csv"
-if not os.path.exists(df_path):
-    raise FileNotFoundError(f"Dataset not found at {df_path}")
-df = pd.read_csv(df_path)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to frontend URL in production
+    allow_origins=["*"],  # Change to your frontend URL for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
