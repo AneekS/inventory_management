@@ -1,9 +1,17 @@
-from fastapi import FastAPI, HTTPException
+import os
 import pandas as pd
+from fastapi import FastAPI, HTTPException
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-# Load inventory dataset
-df = pd.read_csv("retail_store_inventory.csv")
+
+# Ensure the CSV file is stored in a persistent location
+df_path = "/data/retail_store_inventory.csv"  # Change from local path
+
+# Check if the file exists before loading
+if not os.path.exists(df_path):
+    raise FileNotFoundError(f"Dataset not found at {df_path}")
+
+df = pd.read_csv(df_path)
 
 # Convert 'Date' column to datetime format if it exists
 if 'Date' in df.columns:
@@ -14,11 +22,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to your frontend URL for security
+    allow_origins=["*"],  # Change to frontend URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-) 
+)
 
 @app.get("/inventory")
 def get_inventory():
@@ -36,7 +44,6 @@ def get_product(product_id: int):
 @app.post("/predict")
 def predict_demand(product_id: int, current_stock: int):
     """Dummy ML prediction endpoint for demand forecasting."""
-    # Placeholder formula for demand prediction
     predicted_demand = max(0, current_stock - 10)  # Replace with actual ML logic
     return {"product_id": product_id, "predicted_demand": predicted_demand}
 
