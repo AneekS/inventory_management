@@ -19,7 +19,14 @@ if 'Date' in df.columns:
 
 # Initialize FastAPI app
 app = FastAPI()
+PORT = int(os.getenv("PORT", 8000))  # Use 8000 if PORT is not set
+DATABASE_URL = os.getenv("DATABASE_URL", None)  # For future database integration
 
+# Load CSV file
+df_path = "/data/retail_store_inventory.csv"
+if not os.path.exists(df_path):
+    raise FileNotFoundError(f"Dataset not found at {df_path}")
+df = pd.read_csv(df_path)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Change to frontend URL in production
